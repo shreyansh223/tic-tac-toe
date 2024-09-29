@@ -1,0 +1,68 @@
+body {
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
+    'Lucida Sans', Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100vw;
+}
+
+h1 {
+  color: rgb(38, 181, 22);
+  font-size: 4rem;
+  letter-spacing: 0.5rem;
+  -webkit-text-stroke: 2px black;
+}
+
+.userBigCont {
+  display: flex;
+  justify-content: space-around;
+  width: 100vw;
+}
+input {
+  all: unset;
+  border: 2px solid rgb(54, 54, 54);
+  padding: 10px;
+  margin-bottom: 50px;
+  margin-top: -10px;
+  border-radius: 5px;
+}
+
+#find {
+  all: unset;
+  background-color: black;
+  color: white;
+
+  border: 2px solid rgb(54, 54, 54);
+  padding: 10px;
+  cursor: pointer;
+
+  border-radius: 5px;
+}
+
+#loading {
+  display: block;
+  width: 50px;
+  height: 50px;
+}
+#bigCont {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 100px;
+}
+#cont {
+  display: grid;
+  column-gap: 50px;
+  grid-template-columns: auto auto auto;
+  gap: 0 0;
+}
+.btn {
+  width: 100px;
+  height: 100px;
+  border: 2px solid black;
+  cursor: pointer;
+  border-radius: 5px;
+}

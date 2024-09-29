@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title></title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sofadi+One&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <h1>Tic-Tac-Toe</h1>
+    <div class="userBigCont">
+      <p id="userCont">You : <span id="user"></span></p>
+
+      <p id="userCont1">
+        W/D/L<br /><span id="userWins"></span>/<span id="userDraw"></span>/<span
+          id="userLose"
+        ></span>
+      </p>
+
+      <p id="oppNameCont">Opponent : <span id="oppName"></span></p>
+      <p id="oppCont1">
+        W/D/L<br /><span id="oppWins"></span>/<span id="oppDraw"></span>/<span
+          id="oppLose"
+        ></span>
+      </p>
+    </div>
+    <br />
+    <p id="valueCont">You are playing as <span id="value"></span></p>
+    <br />
+    <p id="whoseTurn">X's turn</p>
+    <div>
+      <p id="enterName">Enter your Name:</p>
+      <input type="text" placeholder="Name" id="name" autocomplete="off" />
+      <p id="enterEmail">Enter Email:</p>
+      <input type="text" placeholder="Email" id="email" autocomplete="off" />
+      <p id="enterPassword">Enter Password:</p>
+      <input
+        type="text"
+        placeholder="Password"
+        id="password"
+        autocomplete="off"
+      />
+    </div>
+    <button id="login">Login / SignUp</button>
+    <button id="find">Search for a player</button>
+
+    <img src="Spinner.gif" id="loading" />
+    <div id="bigCont">
+      <div id="cont">
+        <button id="btn1" class="btn"></button>
+        <button id="btn2" class="btn"></button>
+        <button id="btn3" class="btn"></button>
+        <button id="btn4" class="btn"></button>
+        <button id="btn5" class="btn"></button>
+        <button id="btn6" class="btn"></button>
+        <button id="btn7" class="btn"></button>
+        <button id="btn8" class="btn"></button>
+        <button id="btn9" class="btn"></button>
+      </div>
+    </div>
+    <div id="oppEmail" style="display: none"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('bigCont').style.display = 'none';
+      document.getElementById('userCont').style.display = 'none';
+      document.getElementById('oppNameCont').style.display = 'none';
+      document.getElementById('valueCont').style.display = 'none';
+      document.getElementById('whoseTurn').style.display = 'none';
+      document.getElementById('userCont1').style.display = 'none';
+      document.getElementById('oppCont1').style.display = 'none';
+      document.getElementById('find').style.display = 'none';
+
+      let name;
+      let email;
+
+      document.getElementById('login').addEventListener('click', async () => {
+        name = document.getElementById('name').value;
+        email = document.getElementById('email').value;
+        let password = document.getElementById('password').value;
+        try {
+          const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: name,
+              email: email,
+
+              password: password,
+            }),
+          }).then(async (response) => {
+            const res = await response.json();
+            console.log('res', res);
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('find').style.display = 'block';
+            document.getElementById('userWins').innerText = res.body.wins;
+            document.getElementById('userDraw').innerText = res.body.draw;
+            document.getElementById('userLose').innerText = res.body.lose;
+          });
+        } catch (err) {
+          setTimeout(() => {
+            alert('An error occured');
+            location.reload;
+          }, 1000);
+        }
+      });
+      const socket = io();
+
+      document.getElementById('find').addEventListener('click', () => {
+        document.getElementById('user').innerHTML = name;
+        if (name == null || name == '') {
+          alert('enter a name');
+        } else {
+          socket.emit('find', { name: name, email: email });
+
+          document.getElementById('loading').style.display = 'block';
+
+          document.getElementById('find').disabled = true;
+          document.getElementById('find').style.cursor = 'disabled';
+        }
+      });
+
+      socket.on('find', async (e) => {
+        let allPlayerArray = e.allPlayers;
+        console.log(allPlayerArray);
+        document.getElementById('userCont').style.display = 'block';
+        document.getElementById('userCont1').style.display = 'block';
+        document.getElementById('oppNameCont').style.display = 'block';
+        document.getElementById('oppCont1').style.display = 'block';
+        document.getElementById('enterEmail').style.display = 'none';
+        document.getElementById('email').style.display = 'none';
+        document.getElementById('enterPassword').style.display = 'none';
+        document.getElementById('password').style.display = 'none';
+        document.getElementById('valueCont').style.display = 'block';
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('name').style.display = 'none';
+        document.getElementById('find').style.display = 'none';
+        document.getElementById('find').disabled = false;
+        document.getElementById('enterName').style.display = 'none';
+        document.getElementById('bigCont').style.display = 'block';
+        document.getElementById('whoseTurn').style.display = 'block';
+        document.getElementById('whoseTurn').innerText = " X's Turn";
+        let oppName;
+        let oppEmail;
+        let value;
+        const foundObj = allPlayerArray.find(
+          (obj) =>
+            (obj.p1.p1name == `${name}` && obj.p1.p1email == `${email}`) ||
+            (obj.p2.p2name == `${name}` && obj.p2.p2email == `${email}`)
+        );
+
+        foundObj.p1.p1name == `${name}`
+          ? (oppName = foundObj.p2.p2name)
+          : (oppName = foundObj.p1.p1name);
+        foundObj.p1.p1name == `${name}`
+          ? (oppEmail =
+              foundObj.p2.p2email &&
+              (document.getElementById('oppEmail').innerText =
+                foundObj.p2.p2email))
+          : (oppEmail =
+              foundObj.p1.p1email &&
+              (document.getElementById('oppEmail').innerText =
+                foundObj.p1.p1email));
+        foundObj.p1.p1name == `${name}`
+          ? (value = foundObj.p1.p1value)
+          : (value = foundObj.p2.p2value);
+
+        try {
+          const response = await fetch('/stats', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              oppEmail: oppEmail,
+            }),
+          }).then(async (response) => {
+            const res = await response.json();
+            console.log(res);
+            const { wins, lose, draw } = res;
+            document.getElementById('oppWins').innerText = wins;
+            document.getElementById('oppLose').innerText = lose;
+            document.getElementById('oppDraw').innerText = draw;
+          });
+        } catch (err) {
+          console.log(err);
+        }
+        document.getElementById('oppName').innerText = oppName;
+        document.getElementById('value').innerText = value;
+      });
+
+      document.querySelectorAll('.btn').forEach((e) => {
+        e.addEventListener('click', () => {
+          let value = document.getElementById('value').innerText;
+          e.innerText = value;
+          socket.emit('playing', { value: value, id: e.id, name: name });
+        });
+      });
+
+      socket.on('playing', (e) => {
+        const foundObj = e.allPlayers.find(
+          (obj) => obj.p1.p1name == `${name}` || obj.p2.p2name == `${name}`
+        );
+        let p1id = foundObj.p1.p1move;
+        let p2id = foundObj.p2.p2move;
+        if (foundObj.sum % 2 == 0) {
+          document.getElementById('whoseTurn').innerText = "O's Turn";
+        } else {
+          document.getElementById('whoseTurn').innerText = "X's Turn";
+        }
+        if (p1id != '') {
+          document.getElementById(`${p1id}`).innerText = 'X';
+
+          document.getElementById(`${p1id}`).disabled = true;
+          document.getElementById(`${p1id}`).style.color = 'black';
+        }
+        if (p2id != '') {
+          document.getElementById(`${p2id}`).innerText = 'O';
+
+          document.getElementById(`${p2id}`).disabled = true;
+          document.getElementById(`${p2id}`).style.color = 'black';
+        }
+        check(name, foundObj.sum);
+      });
+
+      function check(name, sum) {
+        document.getElementById('btn1').innerText == ''
+          ? (b1 = 'a')
+          : (b1 = document.getElementById('btn1').innerText);
+        document.getElementById('btn2').innerText == ''
+          ? (b2 = 'b')
+          : (b2 = document.getElementById('btn2').innerText);
+        document.getElementById('btn3').innerText == ''
+          ? (b3 = 'c')
+          : (b3 = document.getElementById('btn3').innerText);
+        document.getElementById('btn4').innerText == ''
+          ? (b4 = 'd')
+          : (b4 = document.getElementById('btn4').innerText);
+        document.getElementById('btn5').innerText == ''
+          ? (b5 = 'e')
+          : (b5 = document.getElementById('btn5').innerText);
+
+        document.getElementById('btn6').innerText == ''
+          ? (b6 = 'f')
+          : (b6 = document.getElementById('btn6').innerText);
+        document.getElementById('btn7').innerText == ''
+          ? (b7 = 'g')
+          : (b7 = document.getElementById('btn7').innerText);
+        document.getElementById('btn8').innerText == ''
+          ? (b8 = 'h')
+          : (b8 = document.getElementById('btn8').innerText);
+        document.getElementById('btn9').innerText == ''
+          ? (b9 = 'i')
+          : (b9 = document.getElementById('btn9').innerText);
+
+        if (
+          (b1 == b2 && b2 == b3) ||
+          (b4 == b5 && b5 == b6) ||
+          (b7 == b8 && b8 == b9) ||
+          (b1 == b4 && b4 == b7) ||
+          (b2 == b5 && b5 == b8) ||
+          (b3 == b6 && b6 == b9) ||
+          (b1 == b5 && b5 == b9) ||
+          (b3 == b5 && b5 == b7)
+        ) {
+          socket.emit('gameOver', { name: name, email: email });
+          setTimeout(async () => {
+            let value = document.getElementById('value').innerText;
+            let oppEmail = document.getElementById('oppEmail').innerText;
+            console.log(email, oppEmail);
+            if (sum % 2 == 0) {
+              alert('X WON  !!');
+
+              if (value == 'X') {
+                try {
+                  const response = await fetch('/result', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      winner: email,
+                      loser: oppEmail,
+                      draw: false,
+                    }),
+                  });
+                } catch (err) {
+                  console.log(err);
+                }
+              }
+            } else {
+              alert('O WON !!');
+              if (value == 'O') {
+                try {
+                  const response = await fetch('/result', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      winner: email,
+                      loser: oppEmail,
+                      draw: false,
+                    }),
+                  });
+                } catch (err) {
+                  console.log(err);
+                }
+              }
+            }
+            setTimeout(() => {
+              location.reload();
+            }, 2000);
+          }, 100);
+        } else if (sum == 10) {
+          socket.emit('gameOver', { name: name });
+          setTimeout(async () => {
+            alert('DRAW !!');
+            try {
+              const response = await fetch('/result', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  draw: true,
+                  winner: email,
+                  loser: oppEmail,
+                }),
+              });
+            } catch (err) {
+              console.log(err);
+            }
+            setTimeout(() => {
+              location.reload();
+            }, 2000);
+          }, 100);
+        }
+      }
+    </script>
+  </body>
+</html>
